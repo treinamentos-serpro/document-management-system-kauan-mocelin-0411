@@ -3,9 +3,8 @@ import { uploadDocument } from '../services/documentsApi';
 
 // Formulário de upload de documentos. Notifica o componente pai após o envio
 // para que a listagem seja atualizada.
-export default function UploadComponent({ onUploadSuccess }) {
+export default function UploadComponent({ userId, onUploadSuccess }) {
   const fileInputRef = useRef(null);
-  const [owner, setOwner] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -22,10 +21,9 @@ export default function UploadComponent({ onUploadSuccess }) {
     setError(null);
 
     try {
-      await uploadDocument(file, owner.trim());
+      await uploadDocument(file, userId);
       fileInputRef.current.value = '';
-      setOwner('');
-      onUploadSuccess?.();
+      await onUploadSuccess?.();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -39,14 +37,6 @@ export default function UploadComponent({ onUploadSuccess }) {
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '0.5rem' }}>
           <input ref={fileInputRef} type="file" aria-label="Arquivo" />
-        </div>
-        <div style={{ marginBottom: '0.5rem' }}>
-          <input
-            type="text"
-            placeholder="Dono (opcional)"
-            value={owner}
-            onChange={(event) => setOwner(event.target.value)}
-          />
         </div>
         <button type="submit" disabled={isUploading}>
           {isUploading ? 'Enviando...' : 'Enviar'}
