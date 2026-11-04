@@ -12,7 +12,7 @@ function formatDate(isoDate) {
 }
 
 // Lista os documentos recebidos via props, com botão de download por item.
-export default function DocumentList({ documents, isLoading, error }) {
+export default function DocumentList({ documents, isLoading, error, userId }) {
   if (isLoading) {
     return <p>Carregando documentos...</p>;
   }
@@ -44,7 +44,7 @@ export default function DocumentList({ documents, isLoading, error }) {
             <td>{doc.owner}</td>
             <td>{formatDate(doc.uploadedAt)}</td>
             <td>
-              <DownloadButton documentId={doc.id} fileName={doc.originalName} />
+              <DownloadButton documentId={doc.id} fileName={doc.originalName} userId={userId} />
             </td>
           </tr>
         ))}

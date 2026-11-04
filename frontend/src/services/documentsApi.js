@@ -6,13 +6,17 @@ const API_BASE = '/api';
 async function parseError(response, fallbackMessage) {
   try {
     const data = await response.json();
-    return data?.error || fallbackMessage;
+    return data?.error?.message || data?.error || fallbackMessage;
   } catch {
     return fallbackMessage;
   }
 }
 
-export async function uploadDocument(file, owner) {
+function userHeaders(userId) {
+  return { 'X-User-Id': userId };
+}
+
+export async function uploadDocument(file, userId) {
   const formData = new FormData();
   formData.append('file', file);
   if (owner) {
@@ -21,6 +25,7 @@ export async function uploadDocument(file, owner) {
 
   const response = await fetch(`${API_BASE}/upload`, {
     method: 'POST',
+    headers: userHeaders(userId),
     body: formData,
   });
 
@@ -31,18 +36,23 @@ export async function uploadDocument(file, owner) {
   return response.json();
 }
 
-export async function listDocuments() {
-  const response = await fetch(`${API_BASE}/documents`);
+export async function listDocuments(userId) {
+  const response = await fetch(`${API_BASE}/documents`, {
+    headers: userHeaders(userId),
+  });
 
   if (!response.ok) {
     throw new Error(await parseError(response, 'Falha ao listar os documentos.'));
   }
 
-  return response.json();
+  const data = await response.json();
+  return data.documents;
 }
 
-export async function downloadDocument(id, fileName) {
-  const response = await fetch(`${API_BASE}/documents/${id}/download`);
+export async function downloadDocument(id, fileName, userId) {
+  const response = await fetch(`${API_BASE}/documents/${id}/download`, {
+    headers: userHeaders(userId),
+  });
 
   if (!response.ok) {
     throw new Error(await parseError(response, 'Falha ao baixar o documento.'));
@@ -57,5 +67,5 @@ export async function downloadDocument(id, fileName) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

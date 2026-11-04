@@ -7,12 +7,13 @@ function save(document) {
   return document;
 }
 
-function findAll() {
-  return Array.from(documents.values());
+function findAllByOwner(owner) {
+  return Array.from(documents.values()).filter((document) => document.owner === owner);
 }
 
-function findById(id) {
-  return documents.get(id) || null;
+function findByIdAndOwner(id, owner) {
+  const document = documents.get(id);
+  return document?.owner === owner ? document : null;
 }
 
-module.exports = { save, findAll, findById };
+module.exports = { save, findAllByOwner, findByIdAndOwner };
